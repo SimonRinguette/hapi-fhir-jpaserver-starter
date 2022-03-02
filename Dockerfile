@@ -27,12 +27,14 @@ RUN rm -rf /opt/bitnami/tomcat/webapps/ROOT && \
     chmod 775 /opt/bitnami/hapi/data/hapi/lucenefiles
 
 RUN mkdir -p /target && chown -R 1001:1001 target
+
 USER 1001
 
 COPY --chown=1001:1001 catalina.properties /opt/bitnami/tomcat/conf/catalina.properties
 COPY --chown=1001:1001 server.xml /opt/bitnami/tomcat/conf/server.xml
 COPY --from=build-hapi --chown=1001:1001 /tmp/hapi-fhir-jpaserver-starter/target/ROOT.war /opt/bitnami/tomcat/webapps/ROOT.war
 COPY --from=build-hapi --chown=1001:1001 /tmp/hapi-fhir-jpaserver-starter/opentelemetry-javaagent.jar /app
+COPY --chown=1001:1001 fhir-db /db
 
 ENV ALLOW_EMPTY_PASSWORD=yes
 
@@ -41,10 +43,15 @@ FROM gcr.io/distroless/java17-debian12:nonroot AS default
 # 65532 is the nonroot user's uid
 # used here instead of the name to allow Kubernetes to easily detect that the container
 # is running as a non-root (uid != 0) user.
+
 USER 65532:65532
 WORKDIR /app
 
 COPY --chown=nonroot:nonroot --from=build-distroless /app /app
 COPY --chown=nonroot:nonroot --from=build-hapi /tmp/hapi-fhir-jpaserver-starter/opentelemetry-javaagent.jar /app
+COPY --chown=nonroot:nonroot  fhir-db /db
 
 ENTRYPOINT ["java", "--class-path", "/app/main.war", "-Dloader.path=main.war!/WEB-INF/classes/,main.war!/WEB-INF/,/app/extra-classes", "org.springframework.boot.loader.PropertiesLauncher"]
+
+COPY catalina.properties /usr/local/tomcat/conf/catalina.properties
+COPY server.xml /usr/local/tomcat/conf/server.xml

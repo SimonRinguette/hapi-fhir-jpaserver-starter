@@ -92,8 +92,8 @@ spring:
     fail-on-missing-locations: false
 
   datasource:
-    # url: "jdbc:h2:file:./target/database/h2"
-    url: jdbc:h2:mem:test_mem
+    url: 'jdbc:h2:file:/db/fhir'
+    # url: jdbc:h2:mem:test_mem
     username: sa
     password: null
     driver-class-name: org.h2.Driver
@@ -269,7 +269,7 @@ hapi:
     # auto_create_placeholder_reference_targets: false
     # mass_ingestion_mode_enabled: false
     # auto_version_reference_at_paths: Device.patient, Device.location, Device.parent, DeviceMetric.parent, DeviceMetric.source, Observation.device, Observation.subject
-    # client_id_strategy: ALPHANUMERIC
+    client_id_strategy: ANY
     # server_id_strategy: SEQUENTIAL_NUMERIC
     # enforce_referential_integrity_on_delete: false
     # enforce_referential_integrity_on_write: false
@@ -278,12 +278,6 @@ hapi:
     # fhirpath_interceptor_enabled: false
     # filter_search_enabled: true
     # graphql_enabled: true
-
-    # Thread pool configuration for maintenance operations
-    # Defaults to Runtime.getRuntime().availableProcessors() if not specified
-    # reindex_thread_count: 4        # Number of threads to use for reindex operations
-    # expunge_thread_count: 4        # Number of threads to use for expunge operations
-    # mark_resources_for_reindexing_upon_search_parameter_change: false
 
     # -------------------------------------------------------------------------------
     # G. Narrative & Validation
@@ -359,7 +353,7 @@ hapi:
     # -------------------------------------------------------------------------------
     # comma-separated package names, will be @ComponentScan'ed by Spring to allow for creating custom Spring beans
 
-    # custom-bean-packages:
+    # custom-provider-classes:
     # custom-interceptor-classes:
     # custom-provider-classes:
     
@@ -387,14 +381,6 @@ hapi:
     # max_page_size: 200
     # retain_cached_searches_mins: 60
     # reuse_cached_search_results_millis: 60000
-    #   validation:
-    #     requests_enabled: true
-    #     responses_enabled: true
-    #   binary_storage_enabled: true
-    #   binary_storage_mode: FILESYSTEM
-    #   binary_storage_filesystem_base_directory: /binstore
-    # When binary_storage_mode is FILESYSTEM and this value is not set,
-    # the starter defaults to 102400 bytes so smaller binaries stay inline.
     inline_resource_storage_below_size: 4000
 
     # -------------------------------------------------------------------------------
@@ -414,9 +400,9 @@ hapi:
     # -------------------------------------------------------------------------------
     # Q. Subscriptions (disabled by default)
     # -------------------------------------------------------------------------------
-    # subscription:
-    #   resthook_enabled: true
-    #   websocket_enabled: false
+    subscription:
+      resthook_enabled: true
+      websocket_enabled: true
     #   polling_interval_ms: 5000
     #   immediately_queued: false
     #   email:
@@ -440,7 +426,7 @@ hapi:
     # -------------------------------------------------------------------------------
     tester:
       home:
-        name: Local Tester
+        name: Local
         server_address: 'http://localhost:8080/fhir'
         refuse_to_fetch_third_party_urls: false
         fhir_version: R4
